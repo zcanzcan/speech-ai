@@ -175,24 +175,43 @@ const App = {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            video.src = URL.createObjectURL(data);
+            // 모바일 호환성을 위한 속성 강화
+            video.style.display = 'none';
             video.muted = true;
             video.playsInline = true;
+            video.preload = 'auto';
             
-            video.onloadeddata = () => {
-                video.currentTime = Math.min(1, video.duration / 2); // 영상 중간쯤에서 캡처
+            const timeout = setTimeout(() => {
+                window.URL.revokeObjectURL(video.src);
+                resolve(null);
+            }, 5000); // 5초 타임아웃
+
+            video.onloadedmetadata = () => {
+                // 영상의 25% 지점 또는 1초 지점으로 이동
+                video.currentTime = Math.min(1, video.duration * 0.25);
             };
             
             video.onseeked = () => {
-                canvas.width = 160; // 저해상도로 저장 (LocalStorage 용량 고려)
-                canvas.height = 90;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const base64 = canvas.toDataURL('image/jpeg', 0.6);
-                window.URL.revokeObjectURL(video.src);
-                resolve(base64);
+                clearTimeout(timeout);
+                try {
+                    canvas.width = 160;
+                    canvas.height = 90;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const base64 = canvas.toDataURL('image/jpeg', 0.5);
+                    window.URL.revokeObjectURL(video.src);
+                    resolve(base64);
+                } catch (e) {
+                    console.error("Thumbnail capture error:", e);
+                    resolve(null);
+                }
             };
 
-            video.onerror = () => resolve(null);
+            video.onerror = () => {
+                clearTimeout(timeout);
+                resolve(null);
+            };
+
+            video.src = URL.createObjectURL(data);
             video.load();
         });
     },

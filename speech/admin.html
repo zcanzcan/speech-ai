@@ -140,17 +140,19 @@
             </div>
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-4 border-b bg-slate-50"><h3 class="font-bold">최근 분석 리포트</h3></div>
-                <table class="w-full text-sm text-left">
-                    <thead class="bg-slate-100 text-slate-500 uppercase text-[10px] font-bold">
-                        <tr>
-                            <th class="px-6 py-3">학생 ID / 기수</th>
-                            <th class="px-6 py-3">분석 시간</th>
-                            <th class="px-6 py-3">점수</th>
-                            <th class="px-6 py-3 text-right">리포트</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recent-logs-table"></tbody>
-                </table>
+                <div class="overflow-x-auto no-scrollbar">
+                    <table class="w-full text-sm text-left min-w-[600px] md:min-w-full">
+                        <thead class="bg-slate-100 text-slate-500 uppercase text-[10px] font-bold">
+                            <tr>
+                                <th class="px-6 py-3">학생 정보</th>
+                                <th class="px-6 py-3">분석 과제</th>
+                                <th class="px-6 py-3">점수</th>
+                                <th class="px-6 py-3 text-right">리포트</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-logs-table"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

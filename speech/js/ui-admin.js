@@ -171,22 +171,22 @@ document.addEventListener('DOMContentLoaded', () => {
             row.innerHTML = `
                 <td class="px-6 py-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-12 h-8 bg-slate-100 rounded overflow-hidden flex-shrink-0 border border-slate-200">
+                        <div class="w-12 h-8 bg-slate-100 rounded overflow-hidden flex-shrink-0 border border-slate-200 shadow-sm">
                             ${log.thumbnail ? `<img src="${log.thumbnail}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-slate-300"><i data-lucide="video" class="w-3 h-3"></i></div>`}
                         </div>
-                        <div>
-                            <div class="font-bold text-slate-700">${log.studentId}</div>
-                            <div class="text-[9px] text-blue-500 font-semibold">${log.cohort}기 수강생</div>
+                        <div class="whitespace-nowrap">
+                            <div class="font-bold text-slate-700 text-[11px] md:text-xs">${log.studentId}</div>
+                            <div class="text-[9px] text-blue-500 font-semibold">${log.cohort}기</div>
                         </div>
                     </div>
                 </td>
                 <td class="px-6 py-4">
-                    <div class="text-slate-600 font-medium">${log.questionTitle || '일반 연습'}</div>
+                    <div class="text-slate-600 font-medium truncate max-w-[120px] md:max-w-none text-[11px] md:text-xs">${log.questionTitle || '일반 연습'}</div>
                     <div class="text-[9px] text-slate-400">${new Date(log.timestamp).toLocaleTimeString()}</div>
                 </td>
-                <td class="px-6 py-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-600 font-black border border-blue-100">${log.score}</span></td>
+                <td class="px-6 py-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-600 font-black border border-blue-100 text-[11px] md:text-xs">${log.score}</span></td>
                 <td class="px-6 py-4 text-right">
-                    <button id="view-report-${index}" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold hover:bg-blue-600 transition-colors">상세보기</button>
+                    <button id="view-report-${index}" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold hover:bg-blue-600 transition-colors whitespace-nowrap">상세보기</button>
                 </td>
             `;
             tableBody.appendChild(row);
