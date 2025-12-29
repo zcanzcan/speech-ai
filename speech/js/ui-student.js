@@ -17,6 +17,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const analysisStep = document.getElementById('analysis-step');
     const resultPreview = document.getElementById('result-preview');
 
+    // 0. 초기 화면 버튼 주입 (카메라 켜기 / 샘플 테스트)
+    function renderStartPrompt() {
+        const promptButtons = document.querySelector('#start-prompt .space-y-3');
+        if (promptButtons) {
+            promptButtons.innerHTML = `
+                <button id="btn-start-camera" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="camera" class="w-5 h-5"></i> 카메라 켜기
+                </button>
+                <button id="btn-sample-demo" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-3 px-8 rounded-xl transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="play-circle" class="w-5 h-5"></i> 샘플 영상으로 테스트 (정밀 분석)
+                </button>
+            `;
+            if (window.lucide) lucide.createIcons();
+        }
+    }
+
+    renderStartPrompt();
+
     const tabRecord = document.getElementById('tab-record');
     const tabUpload = document.getElementById('tab-upload');
     const recordContent = document.getElementById('record-content');
@@ -105,13 +123,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 카메라/녹화/업로드 이벤트 ---
     document.addEventListener('click', async (e) => {
-        if (e.target.id === 'btn-start-camera') {
+        const startCamBtn = e.target.closest('#btn-start-camera');
+        const sampleDemoBtn = e.target.closest('#btn-sample-demo');
+
+        if (startCamBtn) {
             await window.SpeechApp.startPreview(videoPreview);
             startPrompt.classList.add('hidden');
             btnStartRec.classList.remove('hidden');
             btnStartRec.disabled = false;
         }
-        if (e.target.id === 'btn-sample-demo') {
+        if (sampleDemoBtn) {
             if (confirm(`[${selectedScenario.title}] 과제의 샘플 영상으로 분석을 시작할까요?`)) {
                 await startAnalysis(null, true);
             }
