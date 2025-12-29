@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/speech/index.html" },
+    { "source": "/admin", "destination": "/speech/admin.html" },
+    { "source": "/(.*)", "destination": "/speech/$1" }
+  ]
+}
+

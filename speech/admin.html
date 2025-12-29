@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructor Dashboard - Speech Insight Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen font-sans">
+
+    <nav class="bg-slate-900 text-white p-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+            </div>
+            <span class="font-bold text-xl">Dashboard <span class="text-blue-400 font-normal">Admin</span></span>
+        </div>
+        <div class="flex items-center gap-4">
+            <!-- 수강생용 과제 관리 버튼 -->
+            <button id="btn-toggle-scenario-form" class="bg-amber-600 hover:bg-amber-500 px-3 py-1.5 rounded text-xs transition-all flex items-center gap-2">
+                <i data-lucide="book-open" class="w-3 h-3"></i> 학생용 과제 관리
+            </button>
+            <span class="text-slate-700">|</span>
+            <!-- 분석 데이터 직접 추가 -->
+            <button id="btn-toggle-add-form" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded text-xs transition-all flex items-center gap-2">
+                <i data-lucide="plus-circle" class="w-3 h-3"></i> 분석 데이터 직접 추가
+            </button>
+            <!-- 테스트용 버튼 추가 -->
+            <button id="btn-refresh" class="bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded text-xs transition-all flex items-center gap-2">
+                <i data-lucide="refresh-cw" class="w-3 h-3"></i> 새로고침
+            </button>
+            <button id="btn-generate-sample" class="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded text-xs transition-all flex items-center gap-2">
+                <i data-lucide="database" class="w-3 h-3"></i> 샘플 데이터 생성
+            </button>
+            <button id="btn-clear-logs" class="bg-red-900/50 hover:bg-red-800 text-red-200 px-3 py-1.5 rounded text-xs transition-all flex items-center gap-2">
+                <i data-lucide="trash-2" class="w-3 h-3"></i> 데이터 초기화
+            </button>
+            <span class="text-slate-500">|</span>
+            <div class="flex gap-6 text-sm">
+                <a href="index.html" class="hover:text-blue-400 transition">수강생 모드</a>
+                <div class="flex items-center gap-2"><span class="w-2 h-2 bg-green-500 rounded-full"></span> 실시간 서버</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 학생용 연습 과제 관리 폼 (Hidden) -->
+    <div id="scenario-mgmt-form" class="hidden max-w-7xl mx-auto p-6 animate-fade-in">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-amber-100 space-y-6">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-amber-700 flex items-center gap-2">
+                    <i data-lucide="book-open" class="w-4 h-4"></i> 수강생 연습 과제(샘플 스크립트) 관리
+                </h3>
+                <button id="btn-close-scenario" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- 과제 등록 및 수정 폼 -->
+                <div class="space-y-4 bg-slate-50 p-5 rounded-xl border border-slate-100">
+                    <h4 id="scn-form-title" class="text-sm font-bold text-slate-700">신규 과제 등록</h4>
+                    <input type="hidden" id="edit-scn-id" value="">
+                    <div class="space-y-3">
+                        <input type="text" id="new-scn-title" placeholder="과제 제목 (예: 아나운서 뉴스 2)" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-500">
+                        <textarea id="new-scn-script" rows="4" placeholder="학생들이 읽을 스크립트 내용을 입력하세요..." class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-amber-500"></textarea>
+                        <div class="flex gap-2">
+                            <button id="btn-cancel-edit" class="hidden flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 rounded-lg text-sm transition-all">취소</button>
+                            <button id="btn-add-scenario" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded-lg text-sm transition-all">과제 라이브러리에 저장</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 현재 과제 목록 -->
+                <div class="space-y-4">
+                    <h4 class="text-sm font-bold text-slate-700">현재 등록된 과제 리스트</h4>
+                    <div id="current-scenario-list" class="space-y-2 max-h-[250px] overflow-y-auto pr-2">
+                        <!-- JS에서 동적 로드 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto p-6 grid grid-cols-12 gap-6">
+        <div class="col-span-12 lg:col-span-4 space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="text-slate-500 text-sm font-semibold mb-4 uppercase">기수 전체 통계</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1"><div class="text-3xl font-bold" id="stat-avg-score">0</div><div class="text-xs text-slate-400">평균 분석 점수</div></div>
+                    <div class="space-y-1"><div class="text-3xl font-bold" id="stat-total-count">0</div><div class="text-xs text-slate-400">총 연습 횟수</div></div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-slate-500 text-sm font-semibold uppercase">기수 선택</h3>
+                    <select id="cohort-selector" class="text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1 outline-none focus:ring-1 focus:ring-blue-500">
+                        <option value="ALL">전체 기수</option>
+                        <option value="1">1기 (오전반)</option>
+                        <option value="2">2기 (오후반)</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-3 bg-blue-50 rounded-xl">
+                        <div class="text-xs text-blue-600 font-bold mb-1">기수 평균</div>
+                        <div class="text-2xl font-black text-blue-700" id="cohort-avg-score">0</div>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-xl">
+                        <div class="text-xs text-slate-500 font-bold mb-1">연습 인원</div>
+                        <div class="text-2xl font-black text-slate-700" id="cohort-student-count">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-slate-500 text-sm font-semibold uppercase">공통 취약 구간</h3>
+                    <span class="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded-full font-bold">⚠️ 주의</span>
+                </div>
+                <div id="risk-patterns-list" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <div class="col-span-12 lg:col-span-8 space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="font-bold text-lg mb-6">수강생 성장 그래프</h3>
+                <div class="h-64"><canvas id="growthChart"></canvas></div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-4 border-b bg-slate-50"><h3 class="font-bold">최근 분석 리포트</h3></div>
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-slate-100 text-slate-500 uppercase text-[10px] font-bold">
+                        <tr>
+                            <th class="px-6 py-3">학생 ID / 기수</th>
+                            <th class="px-6 py-3">분석 시간</th>
+                            <th class="px-6 py-3">점수</th>
+                            <th class="px-6 py-3 text-right">리포트</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-logs-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 상세 리포트 모달 (Hidden) -->
+    <div id="report-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-fade-in">
+            <div class="p-6 border-b flex justify-between items-center bg-slate-50">
+                <div>
+                    <h3 id="modal-student-id" class="font-black text-xl text-slate-800">STUDENT_001</h3>
+                    <p id="modal-scenario-title" class="text-xs text-blue-600 font-bold">아나운서 뉴스 브리핑</p>
+                </div>
+                <button id="btn-close-modal" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-200 transition-colors">
+                    <i data-lucide="x" class="w-6 h-6 text-slate-400"></i>
+                </button>
+            </div>
+            <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
+                <div class="flex justify-between items-end">
+                    <div>
+                        <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">종합 분석 점수</div>
+                        <div id="modal-score" class="text-6xl font-black text-blue-600 tracking-tighter">85</div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 text-center">
+                        <div class="bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
+                            <div class="text-[9px] text-slate-400 font-bold mb-1">발음</div>
+                            <div id="modal-metric-pron" class="text-sm font-black text-slate-700">80%</div>
+                        </div>
+                        <div class="bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
+                            <div class="text-[9px] text-slate-400 font-bold mb-1">속도</div>
+                            <div id="modal-metric-speed" class="text-sm font-black text-slate-700">85점</div>
+                        </div>
+                        <div class="bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
+                            <div class="text-[9px] text-slate-400 font-bold mb-1">태도</div>
+                            <div id="modal-metric-attitude" class="text-sm font-black text-slate-700">90점</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-100 p-5 rounded-2xl">
+                    <h4 class="text-blue-600 text-[10px] font-bold uppercase mb-2 flex items-center gap-1">
+                        <i data-lucide="sparkles" class="w-3 h-3"></i> AI 종합 진단 피드백
+                    </h4>
+                    <p id="modal-feedback" class="text-slate-700 font-medium leading-relaxed italic">
+                        "훌륭한 전달력입니다! 아나운서 표준에 가까운 안정적인 발성을 보여주고 있습니다."
+                    </p>
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="text-slate-400 text-[10px] font-bold uppercase flex items-center gap-1">
+                        <i data-lucide="list-checks" class="w-3 h-3"></i> 세부 실수 및 교정 필요 구간
+                    </h4>
+                    <div id="modal-mistake-list" class="space-y-2">
+                        <!-- 상세 리스트 삽입 -->
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t flex justify-end">
+                <button id="btn-modal-ok" class="bg-slate-800 text-white px-8 py-3 rounded-xl font-bold text-sm hover:bg-slate-700 transition-all">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Dependencies -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/store.js"></script>
+    <script src="js/ui-admin.js"></script>
+    <script>
+        // 디버깅을 위한 즉시 확인 스크립트
+        window.addEventListener('storage', (e) => {
+            console.log("Storage event detected in HTML:", e.key);
+        });
+        console.log("Admin page monitoring active.");
+    </script>
+</body>
+</html>
