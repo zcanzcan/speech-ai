@@ -273,13 +273,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-generate-sample')?.addEventListener('click', async () => {
         const scenarios = window.SpeechStore.getScenarios();
         if (!confirm('샘플 데이터 15건을 생성할까요?')) return;
+        
+        // 시연용 더미 썸네일 (AI 분석 중 이미지)
+        const dummyThumb = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjAiIGhlaWdodD0iOTAiIHZpZXdCb3g9IjAgMCAxNjAgOTAiPjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iOTAiIGZpbGw9IiNmOGZhZmMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZmlsbD0iIzY0NzQ4YiIgZm9udC1zaXplPSIxMiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj5BSSBBbmFseXppbmcuLi48L3RleHQ+PC9zdmc+";
+
         const mocks = [];
         const baseTime = Date.now() - 5000000;
         for(let i=0; i<5; i++) {
             mocks.push({
                 studentId: 'STUDENT_001', cohort: '1', questionId: scenarios[0].id, questionTitle: scenarios[0].title,
                 score: 70 + (i * 5), metrics: { pronunciation: 75+i, speed: 80, attitude: 80+i },
-                feedback: `[성장추적] ${i+1}회차 연습 결과입니다.`, timestamp: new Date(baseTime + (i * 1000000)).toISOString(),
+                feedback: `[성장추적] ${i+1}회차 연습 결과입니다.`, 
+                timestamp: new Date(baseTime + (i * 1000000)).toISOString(),
+                thumbnail: dummyThumb,
                 mistakes: [{ timestamp: 3, type: '발음', detail: '발음 연습 필요' }]
             });
         }
@@ -293,7 +299,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 questionId: scn.id, questionTitle: scn.title,
                 score: Math.floor(Math.random() * 20) + 75,
                 metrics: { pronunciation: 85, speed: 80, attitude: 90 },
-                feedback: `[샘플] ${scn.title} 분석 결과입니다.`, timestamp: new Date().toISOString(),
+                feedback: `[샘플] ${scn.title} 분석 결과입니다.`, 
+                timestamp: new Date().toISOString(),
+                thumbnail: dummyThumb,
                 mistakes: [{ timestamp: 3, type: '발음', detail: `키워드 "${randomWord}" 발음 시 조음 불명확` }]
             });
         }
