@@ -5,7 +5,8 @@
 
 const DEFAULT_SCENARIOS = [
     { id: 'SCN_001', title: '아나운서 뉴스 브리핑', script: '안녕하십니까. 오늘 전해드릴 소식은 우리 사회의 변화와 기술의 혁신이 가져올 새로운 미래에 대한 이야기입니다.', type: 'Announcer' },
-    { id: 'SCN_002', title: 'IT 컨퍼런스 키노트', script: '우리는 오늘 새로운 시대를 여는 혁신적인 솔루션을 소개하고자 합니다. 이 기술이 가져올 변화는 우리의 상상을 뛰어넘을 것입니다.', type: 'Speech' }
+    { id: 'SCN_002', title: 'IT 컨퍼런스 키노트', script: '우리는 오늘 새로운 시대를 여는 혁신적인 솔루션을 소개하고자 합니다. 이 기술이 가져올 변화는 우리의 상상을 뛰어넘을 것입니다.', type: 'Speech' },
+    { id: 'SCN_003', title: 'CEO 스타트업 피칭', script: '우리는 전 세계 사람들이 더 나은 미래를 꿈꿀 수 있도록 가장 혁신적인 플랫폼을 만들고 있습니다. 오늘 그 비전을 공유하고자 합니다.', type: 'Speech' }
 ];
 
 const STORAGE_KEY = 'speech_ai_logs';
