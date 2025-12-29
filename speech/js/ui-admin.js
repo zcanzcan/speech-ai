@@ -16,6 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCloseModal = document.getElementById('btn-close-modal');
     const btnModalOk = document.getElementById('btn-modal-ok');
 
+    // 과제 관리 폼 엘리먼트
+    const scnForm = document.getElementById('scenario-mgmt-form');
+    const btnCloseScenario = document.getElementById('btn-close-scenario');
+    const btnCancelEdit = document.getElementById('btn-cancel-edit');
+
     const openReportModal = (log) => {
         if (!log) return;
         document.getElementById('modal-student-id').innerText = log.studentId;
@@ -211,7 +216,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 초기화 및 이벤트 바인딩
     document.getElementById('cohort-selector')?.addEventListener('change', (e) => { currentCohort = e.target.value; refreshDashboard(); });
-    document.getElementById('btn-toggle-scenario-form')?.addEventListener('click', () => { scnForm.classList.toggle('hidden'); refreshScenarioList(); });
+    document.getElementById('btn-toggle-scenario-form')?.addEventListener('click', () => { 
+        scnForm.classList.toggle('hidden'); 
+        refreshScenarioList(); 
+    });
+    
+    btnCloseScenario?.addEventListener('click', () => {
+        scnForm.classList.add('hidden');
+    });
+
+    btnCancelEdit?.addEventListener('click', () => {
+        document.getElementById('new-scn-title').value = "";
+        document.getElementById('new-scn-script').value = "";
+        document.getElementById('edit-scn-id').value = "";
+        document.getElementById('scn-form-title').innerText = "신규 과제 등록";
+        document.getElementById('btn-add-scenario').innerText = "과제 라이브러리에 저장";
+        btnCancelEdit.classList.add('hidden');
+        isEditing = false;
+    });
+
     document.getElementById('btn-add-scenario')?.addEventListener('click', () => {
         const id = document.getElementById('edit-scn-id').value;
         const title = document.getElementById('new-scn-title').value;
