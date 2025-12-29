@@ -31,6 +31,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-metric-attitude').innerText = (log.metrics?.attitude || 0) + '점';
         document.getElementById('modal-feedback').innerText = `"${log.feedback || '진단 정보가 없습니다.'}"`;
 
+        // 썸네일/미리보기 영역 추가
+        const previewArea = document.getElementById('modal-video-preview');
+        if (previewArea) {
+            if (log.thumbnail) {
+                previewArea.innerHTML = `<img src="${log.thumbnail}" class="w-full h-full object-cover rounded-2xl" alt="분석 영상 썸네일">`;
+            } else {
+                previewArea.innerHTML = `<div class="w-full h-full bg-slate-100 flex items-center justify-center rounded-2xl text-slate-300"><i data-lucide="video-off" class="w-12 h-12"></i></div>`;
+            }
+        }
+
         const mistakeList = document.getElementById('modal-mistake-list');
         mistakeList.innerHTML = '';
         if (log.mistakes && log.mistakes.length > 0) {
@@ -160,8 +170,15 @@ document.addEventListener('DOMContentLoaded', () => {
             row.className = 'border-b hover:bg-slate-50 transition-all text-xs group cursor-pointer';
             row.innerHTML = `
                 <td class="px-6 py-4">
-                    <div class="font-bold text-slate-700">${log.studentId}</div>
-                    <div class="text-[9px] text-blue-500 font-semibold">${log.cohort}기 수강생</div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-8 bg-slate-100 rounded overflow-hidden flex-shrink-0 border border-slate-200">
+                            ${log.thumbnail ? `<img src="${log.thumbnail}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-slate-300"><i data-lucide="video" class="w-3 h-3"></i></div>`}
+                        </div>
+                        <div>
+                            <div class="font-bold text-slate-700">${log.studentId}</div>
+                            <div class="text-[9px] text-blue-500 font-semibold">${log.cohort}기 수강생</div>
+                        </div>
+                    </div>
                 </td>
                 <td class="px-6 py-4">
                     <div class="text-slate-600 font-medium">${log.questionTitle || '일반 연습'}</div>
@@ -173,7 +190,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
             `;
             tableBody.appendChild(row);
-            document.getElementById(`view-report-${index}`).addEventListener('click', () => openReportModal(log));
+            document.getElementById(`view-report-${index}`).addEventListener('click', (e) => {
+                e.stopPropagation();
+                openReportModal(log);
+            });
+            row.addEventListener('click', () => openReportModal(log));
         });
         if (window.lucide) lucide.createIcons();
     }

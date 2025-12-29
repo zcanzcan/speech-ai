@@ -62,6 +62,16 @@ const App = {
      */
     runAIAnalysis: async (data, onProgress) => {
         console.log("Running AI Multimodal Analysis...");
+        
+        // 1. 음성 데이터 존재 여부 실제 확인
+        const hasAudio = await App.checkAudioContent(data);
+        if (!hasAudio && !(data.duration)) { // 샘플 테스트가 아닌 실제 녹화/파일인 경우만 체크
+             throw new Error("음성 데이터가 감지되지 않았습니다. 마이크 설정이나 영상의 소리를 확인해 주세요.");
+        }
+
+        // 2. 썸네일 생성
+        const thumbnail = await App.generateThumbnail(data);
+
         const steps = [
             { msg: "비디오 모션 캡처 및 시선 추적 분석 중...", p: 15 },
             { msg: "음성 파형 데이터(Pitch/Volume) 추출 중...", p: 35 },
@@ -101,6 +111,7 @@ const App = {
         return {
             score: totalScore,
             duration: duration.toFixed(1),
+            thumbnail: thumbnail, // 생성된 썸네일 추가
             mistakes: [
                 { 
                     timestamp: (duration * 0.25).toFixed(1), 
@@ -121,6 +132,69 @@ const App = {
             },
             feedback: detailedFeedback
         };
+    },
+
+    /**
+     * 음성 데이터 실제 감지 로직
+     */
+    checkAudioContent: async (data) => {
+        if (!(data instanceof Blob)) return true; // 샘플 데이터 등은 통과
+        
+        return new Promise((resolve) => {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const reader = new FileReader();
+            
+            reader.onload = async () => {
+                try {
+                    const buffer = await audioCtx.decodeAudioData(reader.result);
+                    const rawData = buffer.getChannelData(0);
+                    let sum = 0;
+                    for (let i = 0; i < rawData.length; i++) {
+                        sum += Math.abs(rawData[i]);
+                    }
+                    const average = sum / rawData.length;
+                    console.log("Average Volume Level:", average);
+                    resolve(average > 0.001); // 일정 임계값 이상의 소리가 있는지 확인
+                } catch (e) {
+                    console.warn("Audio detection failed, skipping...", e);
+                    resolve(true); 
+                }
+            };
+            reader.readAsArrayBuffer(data);
+        });
+    },
+
+    /**
+     * 영상에서 썸네일(base64) 추출
+     */
+    generateThumbnail: async (data) => {
+        if (!(data instanceof Blob) || !data.type.includes('video')) return null;
+
+        return new Promise((resolve) => {
+            const video = document.createElement('video');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            video.src = URL.createObjectURL(data);
+            video.muted = true;
+            video.playsInline = true;
+            
+            video.onloadeddata = () => {
+                video.currentTime = Math.min(1, video.duration / 2); // 영상 중간쯤에서 캡처
+            };
+            
+            video.onseeked = () => {
+                canvas.width = 160; // 저해상도로 저장 (LocalStorage 용량 고려)
+                canvas.height = 90;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const base64 = canvas.toDataURL('image/jpeg', 0.6);
+                window.URL.revokeObjectURL(video.src);
+                resolve(base64);
+            };
+
+            video.onerror = () => resolve(null);
+            video.load();
+        });
     },
 
     /**

@@ -50,3 +50,12 @@
 .transition-all {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* 모바일 가로 스크롤용 - 스크롤바 숨기기 */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
