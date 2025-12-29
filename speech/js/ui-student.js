@@ -122,6 +122,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 카메라/녹화/업로드 이벤트 ---
+    
+    /**
+     * 현재 비디오 미리보기 화면에서 즉시 캡처 (모바일 썸네일 호환성 최강)
+     */
+    function captureLiveFrame() {
+        if (!videoPreview || videoPreview.paused || videoPreview.ended) return null;
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 160;
+            canvas.height = 90;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(videoPreview, 0, 0, canvas.width, canvas.height);
+            return canvas.toDataURL('image/jpeg', 0.5);
+        } catch (e) {
+            console.warn("Live frame capture failed:", e);
+            return null;
+        }
+    }
+
     document.addEventListener('click', async (e) => {
         const startCamBtn = e.target.closest('#btn-start-camera');
         const sampleDemoBtn = e.target.closest('#btn-sample-demo');
@@ -154,22 +173,26 @@ document.addEventListener('DOMContentLoaded', () => {
     btnStopRec?.addEventListener('click', async () => {
         recStatus.classList.add('hidden');
         btnStopRec.classList.add('hidden');
+        
+        // 녹화 중지 직전에 현재 화면을 캡처 (모바일 썸네일 보장)
+        const liveThumb = captureLiveFrame();
+        
         const videoBlob = await window.SpeechApp.stopRecording();
-        await startAnalysis(videoBlob);
+        await startAnalysis(videoBlob, false, liveThumb);
     });
 
     async function handleFileUpload(file) {
         await startAnalysis(file);
     }
 
-    async function startAnalysis(dataBlob, isSample = false) {
+    async function startAnalysis(dataBlob, isSample = false, liveThumbnail = null) {
         analysisSection.classList.remove('hidden');
         try {
             const inputData = isSample ? { duration: 12 } : dataBlob;
             const result = await window.SpeechApp.runAIAnalysis(inputData, (msg, progress) => {
                 analysisStep.innerText = msg;
                 analysisProgress.style.width = progress + '%';
-            });
+            }, liveThumbnail);
 
             await window.SpeechApp.commitResult('STUDENT_001', selectedScenario.id, {
                 ...result,

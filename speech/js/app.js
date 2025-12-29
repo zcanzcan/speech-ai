@@ -60,7 +60,7 @@ const App = {
     /**
      * AI 정밀 분석 시뮬레이션 (기획안의 Multimodal 분석 로직 반영)
      */
-    runAIAnalysis: async (data, onProgress) => {
+    runAIAnalysis: async (data, onProgress, liveThumbnail = null) => {
         console.log("Running AI Multimodal Analysis...");
         
         // 1. 음성 데이터 존재 여부 실제 확인
@@ -69,8 +69,8 @@ const App = {
              throw new Error("음성 데이터가 감지되지 않았습니다. 마이크 설정이나 영상의 소리를 확인해 주세요.");
         }
 
-        // 2. 썸네일 생성
-        const thumbnail = await App.generateThumbnail(data);
+        // 2. 썸네일 생성 (실시간 캡처본이 있으면 그것을 사용, 없으면 영상에서 추출 시도)
+        const thumbnail = liveThumbnail || await App.generateThumbnail(data);
 
         const steps = [
             { msg: "비디오 모션 캡처 및 시선 추적 분석 중...", p: 15 },
