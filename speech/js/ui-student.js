@@ -184,6 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Analysis Error:", err);
             analysisSection.classList.add('hidden');
             alert(err.message || "분석 중 오류가 발생했습니다.");
+            location.reload(); // 확인 클릭 시 초기 화면으로 리프레쉬
         }
     }
 
